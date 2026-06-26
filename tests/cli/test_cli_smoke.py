@@ -58,6 +58,14 @@ def test_keygen_outputs_key():
     assert '"key"' in result.output
 
 
+def test_binary_artifact_not_dumped_without_out():
+    # Sem -o, a chave binária vira uma dica (não despeja bytes crus no terminal).
+    result = runner.invoke(app, ["keygen", "--cipher", "aes-256-gcm"])
+    assert result.exit_code == 0, result.output
+    assert "use -o para gravar" in result.output
+    assert "\x00" not in result.output
+
+
 def test_unsupported_cipher_errors():
     result = runner.invoke(app, ["encrypt", "--cipher", "wireguard", "--text", "x"])
     assert result.exit_code != 0

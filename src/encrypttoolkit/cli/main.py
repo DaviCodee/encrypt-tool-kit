@@ -138,6 +138,11 @@ def _make_operation_command(op: CryptoOperation[Any]) -> click.Command:
     return click.Command(name=op.name, params=params, callback=callback, help=op.summary)
 
 
+def _is_text(media_type: str) -> bool:
+    """Heurística: o artefato é seguro para imprimir como texto no terminal?"""
+    return media_type.startswith("text/") or "json" in media_type or "pem" in media_type
+
+
 def _emit(result: Any, out: Path | None) -> None:
     if result.artifacts and out is not None:
         out.mkdir(parents=True, exist_ok=True)
@@ -146,8 +151,15 @@ def _emit(result: Any, out: Path | None) -> None:
             destination.write_bytes(artifact.data)
             click.echo(f"escrito: {destination}")
     elif result.artifacts:
+        # Sem -o: imprime artefatos de texto; para binários (chave, texto cifrado)
+        # mostra só uma dica — a chave/nonce já vão no JSON de metadados abaixo.
         for artifact in result.artifacts:
-            click.echo(artifact.data.decode("utf-8", errors="replace"))
+            if _is_text(artifact.media_type):
+                click.echo(artifact.data.decode("utf-8", errors="replace"))
+            else:
+                click.echo(
+                    f"[{artifact.filename}: {len(artifact.data)} bytes — use -o para gravar]"
+                )
     if "ciphers" in result.meta:
         _print_ciphers(result.meta["ciphers"])
     elif result.meta:
