@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
     "pydantic>=2.6",
     "cryptography>=42.0",
+    "bcrypt>=5.0.0",
 ]
 
 [project.optional-dependencies]

@@ -33,7 +33,7 @@ from encrypttoolkit.core.errors import (
 )
 
 # Famílias reconhecidas (documentação/UX; não restringe o catálogo).
-FAMILIES = ("aead", "block", "stream", "keywrap", "asymmetric", "recipe")
+FAMILIES = ("aead", "block", "stream", "keywrap", "asymmetric", "recipe", "keystore")
 
 
 @dataclass(slots=True)

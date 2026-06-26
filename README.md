@@ -8,11 +8,12 @@ via HTTP.
 O núcleo (`encrypttoolkit.core`) depende **apenas da stdlib + Pydantic**. A pilha
 criptográfica fica em `encrypttoolkit.ciphers`, sobre a [PyCA `cryptography`], e só é
 importada quando usada. Algoritmos clássicos (AES em GCM/CBC/CTR/…, ChaCha20(-Poly1305),
-RSA-OAEP, AES Key Wrap, Fernet…) saem prontos da biblioteca. Itens da lista de
-referência que **não são uma cifra de blob isolada** — protocolos (TLS, WireGuard…),
-formatos de envelope (PGP, JWE, S/MIME…), containers (LUKS, BitLocker, ZIP AES…),
-serviços de KMS, acordo de chaves (ECDH, X25519…) e KEMs pós-quânticos (ML-KEM) — ficam
-**listados mas indisponíveis**, com erro claro.
+RSA-OAEP, AES Key Wrap, Fernet…) e proteção de chaves privadas por senha (PKCS#8
+cifrado, PKCS#12/PFX, PEM TraditionalOpenSSL, OpenSSH cifrado) saem prontos da
+biblioteca. Itens da lista de referência que **não são uma cifra de blob isolada** —
+protocolos (TLS, WireGuard…), formatos de envelope (PGP, JWE, S/MIME…), containers
+(LUKS, BitLocker, ZIP AES…), serviços de KMS, acordo de chaves (ECDH, X25519…) e KEMs
+pós-quânticos (ML-KEM) — ficam **listados mas indisponíveis**, com erro claro.
 
 [PyCA `cryptography`]: https://cryptography.io/
 
@@ -43,15 +44,16 @@ pip install -e ".[cli,api]"          # núcleo + CLI + API
 pip install -e ".[cli,api,nacl,dev]" # tudo, incluindo libsodium e testes/lint/type-check
 ```
 
-| Extra  | Habilita                                            |
-|--------|-----------------------------------------------------|
-| `cli`  | comando `ctk`                                       |
-| `api`  | servidor FastAPI/uvicorn                            |
-| `nacl` | cifras do libsodium (XSalsa20/XChaCha20-Poly1305)   |
-| `dev`  | pytest, ruff, mypy, httpx                           |
+| Extra  | Habilita                                                              |
+|--------|-----------------------------------------------------------------------|
+| `cli`  | comando `ctk`                                                         |
+| `api`  | servidor FastAPI/uvicorn                                              |
+| `nacl` | cifras do libsodium (XSalsa20/XChaCha20-Poly1305)                    |
+| `dev`  | pytest, ruff, mypy, httpx                                             |
 
-A pilha base (`cryptography` + `pydantic`) é sempre instalada; o `nacl` (PyNaCl) é
-opcional porque traz binário nativo.
+A pilha base (`cryptography` + `pydantic` + `bcrypt`) é sempre instalada. O `bcrypt` é
+necessário para `openssh-private-key` (KDF do formato OpenSSH); o `nacl` (PyNaCl) é
+opcional porque traz binário nativo maior.
 
 ## Operações
 
@@ -64,7 +66,7 @@ opcional porque traz binário nativo.
 
 ## Catálogo de cifras
 
-137 entradas, sendo **64 disponíveis** e 73 listadas-mas-indisponíveis.
+137 entradas, sendo **68 disponíveis** e 69 listadas-mas-indisponíveis.
 
 Disponíveis (por família):
 
@@ -77,6 +79,8 @@ Disponíveis (por família):
 - **keywrap** (2): AES Key Wrap com e sem padding (RFC 3394/5649).
 - **asymmetric** (2): RSA-OAEP (SHA-256) e RSAES-PKCS1-v1_5.
 - **recipe** (1): Fernet.
+- **keystore** (4): proteção de chave privada por senha — PKCS#8 cifrado, PEM
+  TraditionalOpenSSL, PKCS#12/PFX e OpenSSH cifrado (requer `bcrypt`).
 
 Indisponíveis (listadas, erram com motivo claro ao serem usadas): formatos de envelope
 (`openpgp`, `jwe`, `smime`, `cms-envelopeddata`, `cose-encrypt`, `age`…), protocolos

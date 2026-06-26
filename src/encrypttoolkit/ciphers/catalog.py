@@ -19,6 +19,7 @@ from functools import cache
 from encrypttoolkit.ciphers.aead import build_aead
 from encrypttoolkit.ciphers.asymmetric import build_asymmetric
 from encrypttoolkit.ciphers.base import Cipher
+from encrypttoolkit.ciphers.keystore import build_keystore
 from encrypttoolkit.ciphers.keywrap import build_keywrap
 from encrypttoolkit.ciphers.recipe import build_recipe
 from encrypttoolkit.ciphers.sodium import build_sodium
@@ -81,10 +82,6 @@ _UNAVAILABLE: list[tuple[str, str, str, str]] = [
     ("wireguard", "protocol", "WireGuard.", _R_PROTOCOL),
     ("openvpn", "protocol", "OpenVPN.", _R_PROTOCOL),
     ("ssh-transport", "protocol", "SSH transport encryption.", _R_PROTOCOL),
-    ("openssh-private-key", "keystore", "OpenSSH private key encryption.", _R_KEYSTORE),
-    ("pkcs8-encrypted", "keystore", "PKCS#8 EncryptedPrivateKeyInfo.", _R_KEYSTORE),
-    ("pkcs12", "keystore", "PKCS#12 / PFX.", _R_KEYSTORE),
-    ("pem-encrypted-key", "keystore", "PEM encrypted private key.", _R_KEYSTORE),
     ("tink", "library", "Google Tink.", _R_LIBRARY),
     ("libsodium", "library", "libsodium.", _R_LIBRARY),
     ("pyca-cryptography", "library", "PyCA cryptography.", _R_LIBRARY),
@@ -163,6 +160,7 @@ def _registry() -> dict[str, Cipher]:
         build_asymmetric,
         build_recipe,
         build_sodium,
+        build_keystore,
     )
     for build in builders:
         for cipher in build():
