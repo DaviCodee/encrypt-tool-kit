@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "encrypttoolkit"
+version = "0.1.0"
+description = "Concentrador de operações de cifragem: um núcleo Python leve com adaptadores de CLI e API."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Davi Moreira" }]
+keywords = ["encryption", "aes", "chacha20", "rsa", "aead", "cryptography", "toolkit"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "pydantic>=2.6",
+    "cryptography>=42.0",
+]
+
+[project.optional-dependencies]
+cli = ["click>=8.1"]
+api = ["fastapi>=0.110", "uvicorn>=0.29", "python-multipart>=0.0.9"]
+nacl = ["pynacl>=1.5"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+ctk = "encrypttoolkit.cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/encrypttoolkit"]
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI usa File()/Form() como defaults (padrão do framework, não é bug).
+"src/encrypttoolkit/api/app.py" = ["B008"]
+
+[tool.mypy]
+# Semântica 3.12 evita falha de parse em stubs de dependências transitivas;
+# o runtime continua suportando 3.11+ e o ruff valida a sintaxe-alvo py311.
+python_version = "3.12"
+packages = ["encrypttoolkit"]
+mypy_path = "src"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# PyNaCl (extra opcional) não publica stubs; o módulo é exercitado só com o extra.
+module = ["nacl.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
