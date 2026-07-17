@@ -31,3 +31,12 @@ htmlcov/
 out/
 *.key
 *.pem
+
+# Secrets (nunca commitar)
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+secrets/
+config/secrets.*
